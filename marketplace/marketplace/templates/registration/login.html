@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block title %}Login - Marketplace{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="auth-container">
+        <div class="auth-form">
+            <div class="auth-header">
+                <h1><i class="fas fa-sign-in-alt"></i> Login</h1>
+                <p>Welcome back! Please sign in to your account.</p>
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="{{ form.username.id_for_label }}">Username:</label>
+                    {{ form.username }}
+                    {% if form.username.errors %}
+                        <div class="form-errors">{{ form.username.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.password.id_for_label }}">Password:</label>
+                    {{ form.password }}
+                    {% if form.password.errors %}
+                        <div class="form-errors">{{ form.password.errors }}</div>
+                    {% endif %}
+                </div>
+
+                {% if form.non_field_errors %}
+                    <div class="form-errors">{{ form.non_field_errors }}</div>
+                {% endif %}
+
+                <button type="submit" class="btn btn-primary btn-full">
+                    <i class="fas fa-sign-in-alt"></i> Sign In
+                </button>
+            </form>
+
+            <div class="auth-links">
+                <p>Don't have an account? <a href="{% url 'register' %}">Sign up here</a></p>
+            </div>
+        </div>
+
+        <div class="auth-info">
+            <h3>Join Our Marketplace</h3>
+            <ul>
+                <li><i class="fas fa-check"></i> Post unlimited ads</li>
+                <li><i class="fas fa-check"></i> Contact sellers directly</li>
+                <li><i class="fas fa-check"></i> Manage your listings</li>
+                <li><i class="fas fa-check"></i> Safe and secure transactions</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

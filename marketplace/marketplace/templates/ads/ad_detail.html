@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ ad.title }} - Marketplace{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="ad-detail">
+        <!-- Back Button -->
+        <div class="back-nav">
+            <a href="{% url 'home' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Listings
+            </a>
+        </div>
+
+        <div class="ad-detail-content">
+            <!-- Image Gallery -->
+            <div class="image-gallery">
+                {% if images %}
+                    <div class="main-image">
+                        <img src="{{ images.0.image.url }}" alt="{{ ad.title }}" id="mainImage">
+                    </div>
+                    
+                    {% if images|length > 1 %}
+                        <div class="thumbnail-gallery">
+                            {% for image in images %}
+                                <div class="thumbnail {% if forloop.first %}active{% endif %}" 
+                                     onclick="changeMainImage('{{ image.image.url }}', this)">
+                                    <img src="{{ image.image.url }}" alt="{{ image.caption }}">
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% else %}
+                    <div class="no-image-large">
+                        <i class="fas fa-image"></i>
+                        <span>No Images Available</span>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Ad Information -->
+            <div class="ad-info">
+                <div class="ad-header">
+                    <h1>{{ ad.title }}</h1>
+                    <div class="ad-meta">
+                        <span class="price">${{ ad.price }}</span>
+                        <span class="condition">{{ ad.get_condition_display }}</span>
+                    </div>
+                </div>
+
+                <div class="ad-details">
+                    <div class="detail-row">
+                        <span class="label">Category:</span>
+                        <span class="value">
+                            <a href="{% url 'category' ad.category.id %}">{{ ad.category.name }}</a>
+                        </span>
+                    </div>
+                    
+                    <div class="detail-row">
+                        <span class="label">Posted by:</span>
+                        <span class="value">
+                            <i class="fas fa-user"></i>
+                            {{ ad.seller.username }}
+                        </span>
+                    </div>
+                    
+                    <div class="detail-row">
+                        <span class="label">Posted:</span>
+                        <span class="value">
+                            <i class="fas fa-clock"></i>
+                            {{ ad.created_at|timesince }} ago
+                        </span>
+                    </div>
+                    
+                    {% if ad.updated_at != ad.created_at %}
+                        <div class="detail-row">
+                            <span class="label">Updated:</span>
+                            <span class="value">
+                                <i class="fas fa-edit"></i>
+                                {{ ad.updated_at|timesince }} ago
+                            </span>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="ad-description">
+                    <h3>Description</h3>
+                    <p>{{ ad.description|linebreaks }}</p>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="ad-actions">
+                    {% if user.is_authenticated and user == ad.seller %}
+                        <!-- Owner actions -->
+                        <a href="{% url 'edit_ad' ad.pk %}" class="btn btn-secondary">
+                            <i class="fas fa-edit"></i> Edit Ad
+                        </a>
+                        <a href="{% url 'delete_ad' ad.pk %}" class="btn btn-danger" 
+                           onclick="return confirm('Are you sure you want to delete this ad?')">
+                            <i class="fas fa-trash"></i> Delete Ad
+                        </a>
+                    {% else %}
+                        <!-- Contact seller button -->
+                        <button type="button" class="btn btn-primary" onclick="toggleContactForm()">
+                            <i class="fas fa-envelope"></i> Contact Seller
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Form -->
+        {% if user != ad.seller %}
+            <div class="contact-section" id="contactSection" style="display: none;">
+                <div class="contact-form-container">
+                    <h3>Contact {{ ad.seller.username }}</h3>
+                    <form method="post" class="contact-form">
+                        {% csrf_token %}
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="{{ contact_form.sender_name.id_for_label }}">Your Name:</label>
+                                {{ contact_form.sender_name }}
+                            </div>
+                            <div class="form-group">
+                                <label for="{{ contact_form.sender_email.id_for_label }}">Your Email:</label>
+                                {{ contact_form.sender_email }}
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="{{ contact_form.message.id_for_label }}">Message:</label>
+                            {{ contact_form.message }}
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane"></i> Send Message
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="toggleContactForm()">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+// Image gallery functionality
+function changeMainImage(imageUrl, thumbnail) {
+    document.getElementById('mainImage').src = imageUrl;
+    
+    // Update active thumbnail
+    document.querySelectorAll('.thumbnail').forEach(thumb => {
+        thumb.classList.remove('active');
+    });
+    thumbnail.classList.add('active');
+}
+
+// Contact form toggle
+function toggleContactForm() {
+    const contactSection = document.getElementById('contactSection');
+    if (contactSection.style.display === 'none' || contactSection.style.display === '') {
+        contactSection.style.display = 'block';
+        contactSection.scrollIntoView({ behavior: 'smooth' });
+    } else {
+        contactSection.style.display = 'none';
+    }
+}
+</script>
+{% endblock %}

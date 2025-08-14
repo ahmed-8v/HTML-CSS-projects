@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Home - Marketplace{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero">
+    <div class="hero-content">
+        <h1>Find Great Deals on Used Items</h1>
+        <p>Buy and sell with confidence in our community marketplace</p>
+        
+        <!-- Search Form -->
+        <div class="search-container">
+            <form method="GET" class="search-form">
+                <div class="search-row">
+                    <div class="search-input">
+                        {{ form.query }}
+                    </div>
+                    <div class="search-select">
+                        {{ form.category }}
+                    </div>
+                    <button type="submit" class="btn btn-primary search-btn">
+                        <i class="fas fa-search"></i> Search
+                    </button>
+                </div>
+                
+                <!-- Price Range -->
+                <div class="price-range">
+                    <div class="price-input">
+                        {{ form.min_price }}
+                    </div>
+                    <span class="price-separator">to</span>
+                    <div class="price-input">
+                        {{ form.max_price }}
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+
+<!-- Categories Section -->
+<section class="categories-section">
+    <div class="container">
+        <h2>Browse by Category</h2>
+        <div class="categories-grid">
+            {% for category in categories %}
+                <a href="{% url 'category' category.id %}" class="category-card">
+                    <i class="fas fa-tag"></i>
+                    <span>{{ category.name }}</span>
+                    <small>{{ category.ads.count }} items</small>
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Results Section -->
+<section class="results-section">
+    <div class="container">
+        <div class="results-header">
+            <h2>
+                {% if form.query.value %}
+                    Search Results for "{{ form.query.value }}"
+                {% else %}
+                    Latest Items
+                {% endif %}
+            </h2>
+            <span class="results-count">{{ total_ads }} items found</span>
+        </div>
+
+        {% if page_obj %}
+            <div class="ads-grid">
+                {% for ad in page_obj %}
+                    <div class="ad-card">
+                        <a href="{% url 'ad_detail' ad.pk %}" class="ad-link">
+                            <div class="ad-image">
+                                {% if ad.get_primary_image %}
+                                    <img src="{{ ad.get_primary_image }}" alt="{{ ad.title }}">
+                                {% else %}
+                                    <div class="no-image">
+                                        <i class="fas fa-image"></i>
+                                        <span>No Image</span>
+                                    </div>
+                                {% endif %}
+                                <div class="ad-condition">{{ ad.get_condition_display }}</div>
+                            </div>
+                            
+                            <div class="ad-content">
+                                <h3 class="ad-title">{{ ad.title }}</h3>
+                                <p class="ad-category">
+                                    <i class="fas fa-tag"></i>
+                                    {{ ad.category.name }}
+                                </p>
+                                <p class="ad-price">${{ ad.price }}</p>
+                                <p class="ad-seller">
+                                    <i class="fas fa-user"></i>
+                                    {{ ad.seller.username }}
+                                </p>
+                                <p class="ad-date">
+                                    <i class="fas fa-clock"></i>
+                                    {{ ad.created_at|timesince }} ago
+                                </p>
+                            </div>
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            {% if page_obj.has_other_pages %}
+                <div class="pagination-container">
+                    <div class="pagination">
+                        {% if page_obj.has_previous %}
+                            <a href="?{% if request.GET.query %}query={{ request.GET.query }}&{% endif %}{% if request.GET.category %}category={{ request.GET.category }}&{% endif %}{% if request.GET.min_price %}min_price={{ request.GET.min_price }}&{% endif %}{% if request.GET.max_price %}max_price={{ request.GET.max_price }}&{% endif %}page=1" class="page-link">First</a>
+                            <a href="?{% if request.GET.query %}query={{ request.GET.query }}&{% endif %}{% if request.GET.category %}category={{ request.GET.category }}&{% endif %}{% if request.GET.min_price %}min_price={{ request.GET.min_price }}&{% endif %}{% if request.GET.max_price %}max_price={{ request.GET.max_price }}&{% endif %}page={{ page_obj.previous_page_number }}" class="page-link">Previous</a>
+                        {% endif %}
+                        
+                        <span class="page-info">
+                            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                        </span>
+                        
+                        {% if page_obj.has_next %}
+                            <a href="?{% if request.GET.query %}query={{ request.GET.query }}&{% endif %}{% if request.GET.category %}category={{ request.GET.category }}&{% endif %}{% if request.GET.min_price %}min_price={{ request.GET.min_price }}&{% endif %}{% if request.GET.max_price %}max_price={{ request.GET.max_price }}&{% endif %}page={{ page_obj.next_page_number }}" class="page-link">Next</a>
+                            <a href="?{% if request.GET.query %}query={{ request.GET.query }}&{% endif %}{% if request.GET.category %}category={{ request.GET.category }}&{% endif %}{% if request.GET.min_price %}min_price={{ request.GET.min_price }}&{% endif %}{% if request.GET.max_price %}max_price={{ request.GET.max_price }}&{% endif %}page={{ page_obj.paginator.num_pages }}" class="page-link">Last</a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="no-results">
+                <i class="fas fa-search"></i>
+                <h3>No items found</h3>
+                <p>Try adjusting your search criteria or browse all categories.</p>
+                <a href="{% url 'home' %}" class="btn btn-primary">View All Items</a>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit {{ ad.title }} - Marketplace{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="form-container">
+        <div class="form-header">
+            <h1><i class="fas fa-edit"></i> Edit Ad</h1>
+            <p>Update your ad details</p>
+        </div>
+
+        <form method="post" enctype="multipart/form-data" class="ad-form">
+            {% csrf_token %}
+            
+            <!-- Ad Details -->
+            <div class="form-section">
+                <h3>Ad Details</h3>
+                
+                <div class="form-group">
+                    <label for="{{ ad_form.title.id_for_label }}">Title:</label>
+                    {{ ad_form.title }}
+                    {% if ad_form.title.errors %}
+                        <div class="form-errors">{{ ad_form.title.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ ad_form.category.id_for_label }}">Category:</label>
+                        {{ ad_form.category }}
+                        {% if ad_form.category.errors %}
+                            <div class="form-errors">{{ ad_form.category.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ ad_form.condition.id_for_label }}">Condition:</label>
+                        {{ ad_form.condition }}
+                        {% if ad_form.condition.errors %}
+                            <div class="form-errors">{{ ad_form.condition.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ ad_form.price.id_for_label }}">Price ($):</label>
+                        {{ ad_form.price }}
+                        {% if ad_form.price.errors %}
+                            <div class="form-errors">{{ ad_form.price.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ ad_form.description.id_for_label }}">Description:</label>
+                    {{ ad_form.description }}
+                    {% if ad_form.description.errors %}
+                        <div class="form-errors">{{ ad_form.description.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Image Management -->
+            <div class="form-section">
+                <h3>Manage Images</h3>
+                <p class="form-help">Add, remove, or update your images. Check "Delete" to remove existing images.</p>
+                
+                {{ image_formset.management_form }}
+                <div class="image-formset">
+                    {% for form in image_formset %}
+                        <div class="image-form-row">
+                            {% if form.instance.image %}
+                                <div class="existing-image">
+                                    <img src="{{ form.instance.image.url }}" alt="Current image">
+                                    <div class="image-controls">
+                                        {{ form.DELETE }}
+                                        <label for="{{ form.DELETE.id_for_label }}">Delete this image</label>
+                                    </div>
+                                </div>
+                            {% endif %}
+                            
+                            <div class="form-group">
+                                <label>{% if form.instance.image %}Replace with:{% else %}Image:{% endif %}</label>
+                                {{ form.image }}
+                                {% if form.image.errors %}
+                                    <div class="form-errors">{{ form.image.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="{{ form.caption.id_for_label }}">Caption:</label>
+                                {{ form.caption }}
+                                {% if form.caption.errors %}
+                                    <div class="form-errors">{{ form.caption.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            {% for hidden in form.hidden_fields %}
+                                {{ hidden }}
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Save Changes
+                </button>
+                <a href="{% url 'ad_detail' ad.pk %}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

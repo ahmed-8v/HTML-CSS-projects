@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ category.name }} - Marketplace{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="category-header">
+        <div class="back-nav">
+            <a href="{% url 'home' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Home
+            </a>
+        </div>
+        
+        <h1>
+            <i class="fas fa-tag"></i>
+            {{ category.name }}
+        </h1>
+        
+        {% if category.description %}
+            <p class="category-description">{{ category.description }}</p>
+        {% endif %}
+        
+        <p class="category-count">{{ page_obj.paginator.count }} items in this category</p>
+    </div>
+
+    {% if page_obj %}
+        <div class="ads-grid">
+            {% for ad in page_obj %}
+                <div class="ad-card">
+                    <a href="{% url 'ad_detail' ad.pk %}" class="ad-link">
+                        <div class="ad-image">
+                            {% if ad.get_primary_image %}
+                                <img src="{{ ad.get_primary_image }}" alt="{{ ad.title }}">
+                            {% else %}
+                                <div class="no-image">
+                                    <i class="fas fa-image"></i>
+                                    <span>No Image</span>
+                                </div>
+                            {% endif %}
+                            <div class="ad-condition">{{ ad.get_condition_display }}</div>
+                        </div>
+                        
+                        <div class="ad-content">
+                            <h3 class="ad-title">{{ ad.title }}</h3>
+                            <p class="ad-price">${{ ad.price }}</p>
+                            <p class="ad-seller">
+                                <i class="fas fa-user"></i>
+                                {{ ad.seller.username }}
+                            </p>
+                            <p class="ad-date">
+                                <i class="fas fa-clock"></i>
+                                {{ ad.created_at|timesince }} ago
+                            </p>
+                        </div>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+            <div class="pagination-container">
+                <div class="pagination">
+                    {% if page_obj.has_previous %}
+                        <a href="?page=1" class="page-link">First</a>
+                        <a href="?page={{ page_obj.previous_page_number }}" class="page-link">Previous</a>
+                    {% endif %}
+                    
+                    <span class="page-info">
+                        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                    </span>
+                    
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}" class="page-link">Next</a>
+                        <a href="?page={{ page_obj.paginator.num_pages }}" class="page-link">Last</a>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+    {% else %}
+        <div class="no-results">
+            <i class="fas fa-box-open"></i>
+            <h3>No items in this category yet</h3>
+            <p>Be the first to post an item in {{ category.name }}!</p>
+            <a href="{% url 'create_ad' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Post an Ad
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete {{ ad.title }} - Marketplace{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="delete-container">
+        <div class="delete-header">
+            <i class="fas fa-exclamation-triangle"></i>
+            <h1>Delete Ad</h1>
+        </div>
+        
+        <div class="delete-content">
+            <p>Are you sure you want to delete the following ad?</p>
+            
+            <div class="ad-preview">
+                <div class="ad-image">
+                    {% if ad.get_primary_image %}
+                        <img src="{{ ad.get_primary_image }}" alt="{{ ad.title }}">
+                    {% else %}
+                        <div class="no-image">
+                            <i class="fas fa-image"></i>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="ad-details">
+                    <h3>{{ ad.title }}</h3>
+                    <p class="price">${{ ad.price }}</p>
+                    <p class="category">{{ ad.category.name }}</p>
+                    <p class="description">{{ ad.description|truncatewords:20 }}</p>
+                </div>
+            </div>
+            
+            <div class="warning">
+                <p><strong>Warning:</strong> This action cannot be undone. All images and data associated with this ad will be permanently deleted.</p>
+            </div>
+        </div>
+        
+        <div class="delete-actions">
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash"></i> Yes, Delete Ad
+                </button>
+            </form>
+            <a href="{% url 'ad_detail' ad.pk %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Cancel
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
